@@ -6,4 +6,10 @@
 mw_explorer/
 docs/
 eclipse/
+!/sw/solutions/instaspin_foc/boards/boostxldrv8305_revA/f28x/f2806xF/projects/ccs/proj_lab02b/.cproject
+!/sw/solutions/instaspin_foc/boards/boostxldrv8305_revA/f28x/f2806xF/projects/ccs/proj_lab02b/.project
+!/sw/solutions/instaspin_foc/boards/boostxldrv8305_revA/f28x/f2806xF/projects/ccs/proj_lab02b/.settings/org.eclipse.cdt.codan.core.prefs
+!/sw/solutions/instaspin_foc/boards/boostxldrv8305_revA/f28x/f2806xF/projects/ccs/proj_lab02b/.settings/org.eclipse.cdt.debug.core.prefs
+!/sw/solutions/instaspin_motion/boards/boostxldrv8305_revA/f28x/f2806xM/projects/ccs/proj_lab12a/.cproject
+!/sw/solutions/instaspin_motion/boards/boostxldrv8305_revA/f28x/f2806xM/projects/ccs/proj_lab12a/.project
 !.gitignore
