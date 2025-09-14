@@ -1,2 +1,9 @@
-*
+*.cproject
+*.ccsproject
+*.project
+*.pdf
+*.html
+mw_explorer/
+docs/
+eclipse/
 !.gitignore
