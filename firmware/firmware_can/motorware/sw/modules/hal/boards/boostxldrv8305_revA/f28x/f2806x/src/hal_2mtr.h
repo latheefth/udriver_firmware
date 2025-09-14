@@ -120,12 +120,12 @@ extern "C" {
 
 //! \brief Defines the function to turn LEDs off
 //!
-#define HAL_turnLedOff            HAL_setGpioLow
+#define HAL_turnLedOff            HAL_setGpioHigh
 
 
 //! \brief Defines the function to turn LEDs on
 //!
-#define HAL_turnLedOn             HAL_setGpioHigh
+#define HAL_turnLedOn             HAL_setGpioLow
 
 
 //! \brief Defines the function to turn LEDs on
@@ -640,37 +640,37 @@ static inline void HAL_readAdcDataWithOffsets(HAL_Handle handle,HAL_Handle_mtr h
   {
     // convert current A
     // sample the first sample twice due to errata sprz342f, ignore the first sample
-    value = (_iq)ADC_readResult(obj->adcHandle,ADC_ResultNumber_8);
+    value = (_iq)ADC_readResult(obj->adcHandle,ADC_ResultNumber_9);
     value = _IQ12mpy(value,current_sf);
     pAdcData->I.value[0] = value;
 
     // convert current B
-    value = (_iq)ADC_readResult(obj->adcHandle,ADC_ResultNumber_9);
+    value = (_iq)ADC_readResult(obj->adcHandle,ADC_ResultNumber_10);
     value = _IQ12mpy(value,current_sf);
     pAdcData->I.value[1] = value;
 
     // convert current C
-    value = (_iq)ADC_readResult(obj->adcHandle,ADC_ResultNumber_10);
+    value = (_iq)ADC_readResult(obj->adcHandle,ADC_ResultNumber_11);
     value = _IQ12mpy(value,current_sf);
     pAdcData->I.value[2] = value;
 
     // convert voltage A
-    value = (_iq)ADC_readResult(obj->adcHandle,ADC_ResultNumber_11);
+    value = (_iq)ADC_readResult(obj->adcHandle,ADC_ResultNumber_12);
     value = _IQ12mpy(value,voltage_sf);
     pAdcData->V.value[0] = value;
 
     // convert voltage B
-    value = (_iq)ADC_readResult(obj->adcHandle,ADC_ResultNumber_12);
+    value = (_iq)ADC_readResult(obj->adcHandle,ADC_ResultNumber_13);
     value = _IQ12mpy(value,voltage_sf);
     pAdcData->V.value[1] = value;
 
     // convert voltage C
-    value = (_iq)ADC_readResult(obj->adcHandle,ADC_ResultNumber_13);
+    value = (_iq)ADC_readResult(obj->adcHandle,ADC_ResultNumber_14);
     value = _IQ12mpy(value,voltage_sf);
     pAdcData->V.value[2] = value;
 
     // read the dcBus voltage value
-    value = (_iq)ADC_readResult(obj->adcHandle,ADC_ResultNumber_14);
+    value = (_iq)ADC_readResult(obj->adcHandle,ADC_ResultNumber_15);
     value = _IQ12mpy(value,voltage_sf);
     pAdcData->dcBus = value;
   }
@@ -1436,6 +1436,33 @@ void HAL_readDrvData(HAL_Handle_mtr handle, DRV_SPI_8305_Vars_t *Spi_8305_Vars);
 //! \param[in] handle         The hardware abstraction layer (HAL) handle
 //! \param[in] Spi_8305_Vars  SPI variables
 void HAL_setupDrvSpi(HAL_Handle_mtr handle, DRV_SPI_8305_Vars_t *Spi_8305_Vars);
+
+//! \brief Reads the Potentiometer
+//! \param[in] handle The hardware abstraction layer (HAL) handle
+//! \return The potentiometer value from _IQ(-1.0) to _IQ(1.0)
+static inline _iq HAL_readPotentiometerData(HAL_Handle handle)
+{
+    HAL_Obj *obj = (HAL_Obj *)handle;
+    _iq value;
+    // convert potentiometer from IQ12 to IQ24.
+    value = _IQ12toIQ((_iq)ADC_readResult(obj->adcHandle, ADC_ResultNumber_0));
+    return(value);
+} // end of HAL_readPotentiometerData() function
+
+//! \brief Reads the specified ADC result
+//! \param[in] handle The hardware abstraction layer (HAL) handle
+//! \param[in] result_num The number of the result register (corresponds to the SOC number)
+//! \return The ADC value from _IQ(-1.0) to _IQ(1.0)
+static inline _iq HAL_readAdcResult(HAL_Handle handle, ADC_ResultNumber_e result_num)
+{
+    HAL_Obj *obj = (HAL_Obj *)handle;
+    _iq value;
+
+    // convert potentiometer from IQ12 to IQ24 (or whatever is default).
+    value = _IQ12toIQ((_iq)ADC_readResult(obj->adcHandle, result_num));
+
+    return(value);
+} // end of HAL_readAdcResult() function
 
 
 #ifdef __cplusplus

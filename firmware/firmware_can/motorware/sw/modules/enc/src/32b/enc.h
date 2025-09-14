@@ -88,7 +88,7 @@ typedef struct _ENC_Obj_
   int16_t sample_count;			//!< when it reaches the sample period, collect & process encoder data
   int16_t sample_period;		//!< sample period of encoder processing
   uint16_t num_pole_pairs;		//!< number of pole pairs in motor
-  uint16_t num_enc_slots;		//!< number of encoder slots
+  uint32_t num_enc_slots;		//!< number of encoder slots
   _iq mech_angle_gain;			//!< gain which converts the encoder counts to Q24 mechanical degrees
   uint32_t enc_zero_offset;     //!< encoder zero offset in counts
   int32_t enc_elec_angle;		//!< encoder current electrical angle
@@ -230,7 +230,7 @@ inline void ENC_setZeroOffset(ENC_Handle encHandle, uint32_t zeroOffset) {
 //! \param[in] speed_update_freq                Update frequency in Hz for speed calculation
 //! \param[in] speed_cutoff                     Speed calculation LPF cutoff frequency in Hz
 extern void ENC_setup(ENC_Handle encHandle, const int16_t sample_period,
-                      const uint16_t num_pole_pairs, const uint16_t num_enc_slots, 
+                      const uint16_t num_pole_pairs, const uint32_t num_enc_slots,
                       const uint32_t enc_zero_offset, const float_t full_scale_freq, 
                       const float_t speed_update_freq, const float_t speed_cutoff);
 

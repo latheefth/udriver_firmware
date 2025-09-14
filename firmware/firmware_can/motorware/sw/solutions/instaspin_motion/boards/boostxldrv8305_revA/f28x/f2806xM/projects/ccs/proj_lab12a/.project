@@ -282,5 +282,9 @@
 			<name>MW_INSTALL_DIR</name>
 			<value>$%7BPARENT-10-PROJECT_LOC%7D</value>
 		</variable>
+		<variable>
+			<name>USER_CONFIG_DIR</name>
+			<value>$%7BPARENT-1-MW_INSTALL_DIR%7D/user_config_f28069m_drv8305</value>
+		</variable>
 	</variableList>
 </projectDescription>

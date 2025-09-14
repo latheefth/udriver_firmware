@@ -65,7 +65,7 @@ ENC_Handle ENC_init(void *pMemory,const size_t numBytes)
   return(encHandle);
 } // end of ENC_init() function
 
-void ENC_setup(ENC_Handle encHandle, const int16_t sample_period, const uint16_t num_pole_pairs, const uint16_t num_enc_slots, const uint32_t enc_zero_offset, const float_t full_scale_freq, const float_t speed_update_freq, const float_t speed_cutoff)
+void ENC_setup(ENC_Handle encHandle, const int16_t sample_period, const uint16_t num_pole_pairs, const uint32_t num_enc_slots, const uint32_t enc_zero_offset, const float_t full_scale_freq, const float_t speed_update_freq, const float_t speed_cutoff)
 {
   ENC_Obj *enc;
   float_t temp;

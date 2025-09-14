@@ -923,19 +923,46 @@ void HAL_setupAdcs(HAL_Handle handle)
 
   ADC_disableInt(obj->adcHandle,ADC_IntNumber_2);
   ADC_setIntMode(obj->adcHandle,ADC_IntNumber_2,ADC_IntMode_ClearFlag);
-  ADC_setIntSrc(obj->adcHandle,ADC_IntNumber_2,ADC_IntSrc_EOC14);
+  ADC_setIntSrc(obj->adcHandle,ADC_IntNumber_2,ADC_IntSrc_EOC15);
 
 
 
   //configure the SOCs for boostxldrv8305_revB on J1 Connection
+
+  // About ADC Initial Conversion bug
+  // --------------------------------
+  //
+  // From the Silicon Errata of the TMS320F28069 (SPRZ342K):
+  // "When the ADC conversions are initiated by any source of trigger in either
+  // sequential or simultaneous sampling mode, the first sample may not be the
+  // correct conversion result."
+  //
+  // The proposed workaround is to sample the first channel twice and only use
+  // the second result (i.e. never look at the result of the first conversion).
+  // This, however, wastes one of the SOC numbers, i.e. using all 16 ADC
+  // channels gets difficult.
+  // The expected error for the first sample, according to the errata, is <= 4
+  // LSB (least significant bits).  On the range of -1 to +1, this corresponds
+  // to an error of <= 0.002.
+  // For many possible applications of the remaining ADCs A6 and B6 (e.g.
+  // hardware slider, temparature sensor, ...) this error is small enough to be
+  // tolerable.  Therefore we simply use the first (erroneous) conversion of the
+  // two sequences for these inputs and use them, despite being not 100%
+  // correct.  By doing so, we avoid errors in the critical phase current
+  // conversions while still being able to use all 16 channels without ugly
+  // hacks.
+
+
   // Begin Motor 1 sampling
-  // EXT IA-FB
-  ADC_setSocChanNumber(obj->adcHandle,ADC_SocNumber_0,ADC_SocChanNumber_A0);
+
+  // Sensor on ADCINA6 (e.g. potentiometer).
+  // Note: this is affected by ADC Initial Conversion bug (SPRZ342) which leads
+  // to an error of typically <= 0.002
+  ADC_setSocChanNumber(obj->adcHandle,ADC_SocNumber_0,ADC_SocChanNumber_A6);
   ADC_setSocTrigSrc(obj->adcHandle,ADC_SocNumber_0,ADC_SocTrigSrc_EPWM1_ADCSOCA);
   ADC_setSocSampleDelay(obj->adcHandle,ADC_SocNumber_0,ADC_SocSampleDelay_9_cycles);
 
   // EXT IA-FB
-  // Duplicate conversion due to ADC Initial Conversion bug (SPRZ342)
   ADC_setSocChanNumber(obj->adcHandle,ADC_SocNumber_1,ADC_SocChanNumber_A0);
   ADC_setSocTrigSrc(obj->adcHandle,ADC_SocNumber_1,ADC_SocTrigSrc_EPWM1_ADCSOCA);
   ADC_setSocSampleDelay(obj->adcHandle,ADC_SocNumber_1,ADC_SocSampleDelay_9_cycles);
@@ -972,41 +999,50 @@ void HAL_setupAdcs(HAL_Handle handle)
   // End Motor 1 sampling
 
   // Begin Motor 2 sampling
-  // EXT IA-FB
-  ADC_setSocChanNumber(obj->adcHandle,ADC_SocNumber_8,ADC_SocChanNumber_A3);
+
+  // Sensor on ADCINB6 (e.g. potentiometer).
+  // Note: this is affected by ADC Initial Conversion bug (SPRZ342) which leads
+  // to an error of typically <= 0.002
+  ADC_setSocChanNumber(obj->adcHandle,ADC_SocNumber_8,ADC_SocChanNumber_B6);
   ADC_setSocTrigSrc(obj->adcHandle,ADC_SocNumber_8,ADC_SocTrigSrc_EPWM4_ADCSOCA);
   ADC_setSocSampleDelay(obj->adcHandle,ADC_SocNumber_8,ADC_SocSampleDelay_9_cycles);
 
-  // EXT IB-FB
-  ADC_setSocChanNumber(obj->adcHandle,ADC_SocNumber_9,ADC_SocChanNumber_B3);
+  // EXT IA-FB
+  ADC_setSocChanNumber(obj->adcHandle,ADC_SocNumber_9,ADC_SocChanNumber_A3);
   ADC_setSocTrigSrc(obj->adcHandle,ADC_SocNumber_9,ADC_SocTrigSrc_EPWM4_ADCSOCA);
   ADC_setSocSampleDelay(obj->adcHandle,ADC_SocNumber_9,ADC_SocSampleDelay_9_cycles);
 
-  // EXT IC-FB
-  ADC_setSocChanNumber(obj->adcHandle,ADC_SocNumber_10,ADC_SocChanNumber_A4);
+  // EXT IB-FB
+  ADC_setSocChanNumber(obj->adcHandle,ADC_SocNumber_10,ADC_SocChanNumber_B3);
   ADC_setSocTrigSrc(obj->adcHandle,ADC_SocNumber_10,ADC_SocTrigSrc_EPWM4_ADCSOCA);
   ADC_setSocSampleDelay(obj->adcHandle,ADC_SocNumber_10,ADC_SocSampleDelay_9_cycles);
 
-  // ADC-Vhb1
-  ADC_setSocChanNumber(obj->adcHandle,ADC_SocNumber_11,ADC_SocChanNumber_B7);
+  // EXT IC-FB
+  ADC_setSocChanNumber(obj->adcHandle,ADC_SocNumber_11,ADC_SocChanNumber_A4);
   ADC_setSocTrigSrc(obj->adcHandle,ADC_SocNumber_11,ADC_SocTrigSrc_EPWM4_ADCSOCA);
   ADC_setSocSampleDelay(obj->adcHandle,ADC_SocNumber_11,ADC_SocSampleDelay_9_cycles);
 
-  // ADC-Vhb2
-  ADC_setSocChanNumber(obj->adcHandle,ADC_SocNumber_12,ADC_SocChanNumber_B4);
+  // ADC-Vhb1
+  ADC_setSocChanNumber(obj->adcHandle,ADC_SocNumber_12,ADC_SocChanNumber_B7);
   ADC_setSocTrigSrc(obj->adcHandle,ADC_SocNumber_12,ADC_SocTrigSrc_EPWM4_ADCSOCA);
   ADC_setSocSampleDelay(obj->adcHandle,ADC_SocNumber_12,ADC_SocSampleDelay_9_cycles);
 
-  // ADC-Vhb3
-  ADC_setSocChanNumber(obj->adcHandle,ADC_SocNumber_13,ADC_SocChanNumber_A5);
+  // ADC-Vhb2
+  ADC_setSocChanNumber(obj->adcHandle,ADC_SocNumber_13,ADC_SocChanNumber_B4);
   ADC_setSocTrigSrc(obj->adcHandle,ADC_SocNumber_13,ADC_SocTrigSrc_EPWM4_ADCSOCA);
   ADC_setSocSampleDelay(obj->adcHandle,ADC_SocNumber_13,ADC_SocSampleDelay_9_cycles);
 
-  // VDCBUS
-  ADC_setSocChanNumber(obj->adcHandle,ADC_SocNumber_14,ADC_SocChanNumber_B5);
+  // ADC-Vhb3
+  ADC_setSocChanNumber(obj->adcHandle,ADC_SocNumber_14,ADC_SocChanNumber_A5);
   ADC_setSocTrigSrc(obj->adcHandle,ADC_SocNumber_14,ADC_SocTrigSrc_EPWM4_ADCSOCA);
   ADC_setSocSampleDelay(obj->adcHandle,ADC_SocNumber_14,ADC_SocSampleDelay_9_cycles);
+
+  // VDCBUS
+  ADC_setSocChanNumber(obj->adcHandle,ADC_SocNumber_15,ADC_SocChanNumber_B5);
+  ADC_setSocTrigSrc(obj->adcHandle,ADC_SocNumber_15,ADC_SocTrigSrc_EPWM4_ADCSOCA);
+  ADC_setSocSampleDelay(obj->adcHandle,ADC_SocNumber_15,ADC_SocSampleDelay_9_cycles);
   // End Motor 2 sampling
+
 
 
   return;
@@ -1185,8 +1221,10 @@ void HAL_setupGpios(HAL_Handle handle)
   // SPIB SOMI
   GPIO_setMode(obj->gpioHandle,GPIO_Number_25,GPIO_25_Mode_SPISOMIB);
 
-  // GPIO
-  GPIO_setMode(obj->gpioHandle,GPIO_Number_26,GPIO_26_Mode_GeneralPurpose);
+  // GPIO -- Input for button
+  GPIO_setMode(obj->gpioHandle, GPIO_Number_26, GPIO_26_Mode_GeneralPurpose);
+  GPIO_setHigh(obj->gpioHandle, GPIO_Number_26);
+  GPIO_setDirection(obj->gpioHandle, GPIO_Number_26, GPIO_Direction_Input);
 
   // SPIB CS
   GPIO_setMode(obj->gpioHandle,GPIO_Number_27,GPIO_27_Mode_SPISTEB_NOT);
