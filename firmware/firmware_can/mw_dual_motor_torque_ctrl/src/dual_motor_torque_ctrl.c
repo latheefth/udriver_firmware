@@ -801,6 +801,7 @@ void main(void) {
 
 //! \brief     The main ISR that implements the motor control.
 interrupt void motor1_ISR(void) {
+    HAL_toggleGpio(halHandle,DBG_PIN1);
     // acknowledge the ADC interrupt
     HAL_acqAdcInt(halHandle, ADC_IntNumber_1);
 
@@ -810,6 +811,7 @@ interrupt void motor1_ISR(void) {
 }  // end of motor1_ISR() function
 
 interrupt void motor2_ISR(void) {
+    HAL_toggleGpio(halHandle,DBG_PIN2);
     // acknowledge the ADC interrupt
     HAL_acqAdcInt(halHandle, ADC_IntNumber_2);
 

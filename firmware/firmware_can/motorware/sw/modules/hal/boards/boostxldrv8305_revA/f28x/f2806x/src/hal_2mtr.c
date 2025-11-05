@@ -1275,9 +1275,10 @@ void HAL_setupGpios(HAL_Handle handle)
   // DAC4
   GPIO_setMode(obj->gpioHandle,GPIO_Number_43,GPIO_43_Mode_EPWM8B);
 
-  // GPIO
+  // GPIO : Dbg Pin1
   GPIO_setMode(obj->gpioHandle,GPIO_Number_44,GPIO_44_Mode_GeneralPurpose);
-
+  GPIO_setLow(obj->gpioHandle, GPIO_Number_44);
+  GPIO_setDirection(obj->gpioHandle, GPIO_Number_44, GPIO_Direction_Output);
   // Set Qualification Period for GPIO50-55, 22*2*(1/90MHz) = 0.48us
   GPIO_setQualificationPeriod(obj->gpioHandle,GPIO_Number_50,22);
 
@@ -1327,9 +1328,10 @@ void HAL_setupGpios(HAL_Handle handle)
   GPIO_setMode(obj->gpioHandle,GPIO_Number_56,GPIO_56_Mode_GeneralPurpose);
 #endif
 
-  // No Connection
+  // No Connection : Debug Pin 2
   GPIO_setMode(obj->gpioHandle,GPIO_Number_57,GPIO_57_Mode_GeneralPurpose);
-
+  GPIO_setLow(obj->gpioHandle, GPIO_Number_57);
+  GPIO_setDirection(obj->gpioHandle, GPIO_Number_57, GPIO_Direction_Output);
   // UARTB TX
   GPIO_setMode(obj->gpioHandle,GPIO_Number_58,GPIO_58_Mode_SCITXDB);
 
