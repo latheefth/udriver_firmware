@@ -1520,7 +1520,7 @@ void LED_run(HAL_Handle halHandle) {
         HAL_turnLedOff(halHandle, LED_EXTERN_RED);
     }
 }
-if 0 //Latheef : wanted to use below for debugging but the switch is connected to Reset mentioned in cres100_log.doc
+#if 0 //Latheef : wanted to use below for debugging but the switch is connected to Reset mentioned in cres100_log.doc
 bool Button_released(void)
 {
     bool status = false;
@@ -1542,5 +1542,6 @@ bool Button_released(void)
     }
     return status;
 }
+#endif
 //@} //defgroup
 // end of file
