@@ -355,12 +355,15 @@ bool gCanAbortingMessages = false;
 
 //! Errors that occured in the system.  gErrors.all == 0 if no errors occured.
 Error_t gErrors;
-
+//extern bool Button_released(void); latheef
 //! QEP index watchdog data for both encoders.
 QepIndexWatchdog_t gQepIndexWatchdog[2] = {
     {.isInitialized = false, .indexError_counts = 0},
     {.isInitialized = false, .indexError_counts = 0}};
 
+//! Button pressed - latheef
+//bool buttonPressed = false;
+//unsigned char buttonReleaseCnt = 0u;
 // **************************************************************************
 // the functions
 
@@ -1283,7 +1286,56 @@ void setCanStatusMsg() {
 
     CAN_setStatusMsg(status);
 }
-
+#if 0 //latheef used below to debug uD2 which has AVDD_UVLo fault
+void setCanStatusMsg() {
+    CAN_StatusMsg_t status;
+    //if(Button_released())
+    {
+        //buttonReleaseCnt++;
+    }
+    // Send status message via CAN
+    status.all = 0;
+#if 0 //status01
+    status.bit.system_enabled = gDrvSpi8305Vars[0].Stat_Reg_01.FAULT;
+    status.bit.motor1_enabled = gDrvSpi8305Vars[0].Stat_Reg_01.PVDD_OVFL;
+    status.bit.motor1_ready = gDrvSpi8305Vars[0].Stat_Reg_01.PVDD_UVFL;
+    status.bit.motor2_enabled = gDrvSpi8305Vars[0].Stat_Reg_01.VCPH_UVFL;
+    status.bit.motor2_ready = gDrvSpi8305Vars[0].Stat_Reg_01.VDS_STATUS;
+    status.bit.rsvd = gDrvSpi8305Vars[0].Stat_Reg_01.TEMP_FLAG1|gDrvSpi8305Vars[0].Stat_Reg_01.TEMP_FLAG2|gDrvSpi8305Vars[0].Stat_Reg_01.TEMP_FLAG3|gDrvSpi8305Vars[0].Stat_Reg_01.TEMP_FLAG4;
+    status.bit.error_code = gDrvSpi8305Vars[0].Stat_Reg_01.STAT01_RSV1|gDrvSpi8305Vars[0].Stat_Reg_01.OTW;
+#endif
+#if 0 //status 2
+    status.bit.system_enabled = gDrvSpi8305Vars[0].Stat_Reg_02.SNS_A_OCP|gDrvSpi8305Vars[0].Stat_Reg_02.SNS_B_OCP|gDrvSpi8305Vars[0].Stat_Reg_02.SNS_C_OCP;
+    status.bit.motor1_enabled = gDrvSpi8305Vars[0].Stat_Reg_02.STAT02_RSV2|gDrvSpi8305Vars[0].Stat_Reg_02.STAT02_RSV1;
+    status.bit.motor1_ready = gDrvSpi8305Vars[0].Stat_Reg_02.FETLC_VDS|gDrvSpi8305Vars[0].Stat_Reg_02.FETHC_VDS;
+    status.bit.motor2_enabled = gDrvSpi8305Vars[0].Stat_Reg_02.FETLB_VDS|gDrvSpi8305Vars[0].Stat_Reg_02.FETHB_VDS;
+    status.bit.motor2_ready = gDrvSpi8305Vars[0].Stat_Reg_02.FETLA_VDS|gDrvSpi8305Vars[0].Stat_Reg_02.FETHA_VDS;
+    status.bit.rsvd = gDrvSpi8305Vars[0].Stat_Reg_03.WD_FAULT;
+    status.bit.error_code = gDrvSpi8305Vars[0].Stat_Reg_03.VREG_UV;
+#endif
+//#if 0 //status03
+    status.bit.system_enabled = gDrvSpi8305Vars[0].Stat_Reg_03.PVDD_UVLO2;
+    status.bit.motor1_enabled = gDrvSpi8305Vars[0].Stat_Reg_03.OTS;
+    status.bit.motor1_ready = gDrvSpi8305Vars[0].Stat_Reg_03.AVDD_UVLO;//1
+    status.bit.motor2_enabled = gDrvSpi8305Vars[0].Stat_Reg_03.VCP_LSD_UVLO2;
+    status.bit.motor2_ready = gDrvSpi8305Vars[0].Stat_Reg_03.VCPH_UVLO2;
+    //status.bit.rsvd = gDrvSpi8305Vars[0].Stat_Reg_03.VCPH_OVLO;
+    status.bit.error_code = gDrvSpi8305Vars[0].Stat_Reg_03.VCPH_OVLO_ABS|gDrvSpi8305Vars[0].Stat_Reg_03.VCPH_OVLO;
+//#endif
+#if 0
+    status.bit.system_enabled = gDrvSpi8305Vars[0].Stat_Reg_04.FETLC_VGS;//1
+    status.bit.motor1_enabled = gDrvSpi8305Vars[0].Stat_Reg_04.FETHC_VGS;//1
+    status.bit.motor1_ready = gDrvSpi8305Vars[0].Stat_Reg_04.FETLB_VGS;
+    status.bit.motor2_enabled = gDrvSpi8305Vars[0].Stat_Reg_04.FETHB_VGS;
+    status.bit.motor2_ready = gDrvSpi8305Vars[0].Stat_Reg_04.FETLA_VGS;//1
+    //status.bit.error_code = gDrvSpi8305Vars[0].Stat_Reg_04.FETHA_VGS;//1
+    //status.bit.rsvd = gDrvSpi8305Vars[0].Stat_Reg_01.FAULT;
+    status.bit.error_code = gDrvSpi8305Vars[0].Stat_Reg_01.FAULT;
+#endif
+    //status.all = buttonReleaseCnt;
+    CAN_setStatusMsg(status);
+}
+#endif
 void setCanMotorData(const HAL_MtrSelect_e mtrNum) {
     _iq current_iq, position, speed;
     ST_Obj *st = (ST_Obj *)stHandle[mtrNum];
@@ -1468,6 +1520,27 @@ void LED_run(HAL_Handle halHandle) {
         HAL_turnLedOff(halHandle, LED_EXTERN_RED);
     }
 }
-
+if 0 //Latheef : wanted to use below for debugging but the switch is connected to Reset mentioned in cres100_log.doc
+bool Button_released(void)
+{
+    bool status = false;
+    if(true == buttonPressed)
+    {
+        if (!BUTTON_isPressed(hal.gpioHandle))
+        {
+            /* released */
+            status = true;
+        }
+    }
+    else if (BUTTON_isPressed(hal.gpioHandle))
+    {
+        buttonPressed = true;
+    }
+    else
+    {
+        /* Do Nothing */
+    }
+    return status;
+}
 //@} //defgroup
 // end of file
