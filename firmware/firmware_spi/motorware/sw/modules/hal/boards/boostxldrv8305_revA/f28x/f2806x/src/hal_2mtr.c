@@ -30,7 +30,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --/COPYRIGHT--*/
 //! \file   solutions/instaspin_foc/boards/boostxldrv8305_revA/f28x/f2806xF/src/hal.c
-//! \brief Contains the various functions related to the HAL object (everything outside the CTRL system) 
+//! \brief Contains the various functions related to the HAL object (everything outside the CTRL system)
 //!
 //! (C) Copyright 2011, Texas Instruments, Inc.
 
@@ -79,7 +79,7 @@ void HAL_cal(HAL_Handle handle)
   // Run the Device_cal() function
   // This function copies the ADC and oscillator calibration values from TI reserved
   // OTP into the appropriate trim registers
-  // This boot ROM automatically calls this function to calibrate the interal 
+  // This boot ROM automatically calls this function to calibrate the interal
   // oscillators and ADC with device specific calibration data.
   // If the boot ROM is bypassed by Code Composer Studio during the development process,
   // then the calibration must be initialized by the application
@@ -838,7 +838,11 @@ void HAL_setParamsMtr(HAL_Handle_mtr handleMtr,HAL_Handle handle,const USER_Para
   else if(objMtr->mtrNum == HAL_MTR2)
   {
     DRV8305_setGpioHandle(objMtr->drv8305Handle,obj->gpioHandle);
-    DRV8305_setSpiHandle(objMtr->drv8305Handle,obj->spiBHandle);
+
+    // ***** JF edit starts
+    //DRV8305_setSpiHandle(objMtr->drv8305Handle,obj->spiBHandle);
+    DRV8305_setSpiHandle(objMtr->drv8305Handle,obj->spiAHandle);
+    // ***** JF edit ends
     DRV8305_setGpioNumber(objMtr->drv8305Handle,GPIO_Number_52);
   }
 
@@ -888,7 +892,7 @@ void HAL_setupAdcs(HAL_Handle handle)
   ADC_enableBandGap(obj->adcHandle);
 
 
-  // set the ADC voltage reference source to internal 
+  // set the ADC voltage reference source to internal
   ADC_setVoltRefSrc(obj->adcHandle,ADC_VoltageRefSrc_Int);
 
 
@@ -1105,7 +1109,7 @@ void HAL_setupGate(HAL_Handle_mtr handleMtr,SPI_Handle handleSpi,GPIO_Handle han
 //  HAL_Obj *obj = (HAL_Obj *)handle;
   HAL_Obj_mtr *objMtr = (HAL_Obj_mtr *)handleMtr;
 
-  
+
   DRV8305_setGpioHandle(objMtr->drv8305Handle,handleGpio);
   DRV8305_setSpiHandle(objMtr->drv8305Handle,handleSpi);
   DRV8305_setGpioNumber(objMtr->drv8305Handle,gpio);
@@ -1156,15 +1160,24 @@ void HAL_setupGpios(HAL_Handle handle)
   GPIO_setMode(obj->gpioHandle,GPIO_Number_11,GPIO_11_Mode_EPWM6B);
 
   // GPIO
-  GPIO_setMode(obj->gpioHandle,GPIO_Number_12,GPIO_12_Mode_GeneralPurpose);
-  GPIO_setLow(obj->gpioHandle,GPIO_Number_12);
-  GPIO_setDirection(obj->gpioHandle,GPIO_Number_12,GPIO_Direction_Output);
+  // ***** JF edit starts
+//  GPIO_setMode(obj->gpioHandle,GPIO_Number_12,GPIO_12_Mode_GeneralPurpose);
+//  GPIO_setLow(obj->gpioHandle,GPIO_Number_12);
+//  GPIO_setDirection(obj->gpioHandle,GPIO_Number_12,GPIO_Direction_Output);
+  GPIO_setMode(obj->gpioHandle,GPIO_Number_12,GPIO_12_Mode_SPISIMOB);
+  // ***** JF edit ends
 
   // GPIO
-  GPIO_setMode(obj->gpioHandle,GPIO_Number_13,GPIO_13_Mode_GeneralPurpose);
+  // ***** JF edit starts
+//  GPIO_setMode(obj->gpioHandle,GPIO_Number_13,GPIO_13_Mode_GeneralPurpose);
+  GPIO_setMode(obj->gpioHandle,GPIO_Number_13,GPIO_13_Mode_SPISOMIB);
+  // ***** JF edit ends
 
   // SPIB CLK
-  GPIO_setMode(obj->gpioHandle,GPIO_Number_14,GPIO_14_Mode_SPICLKB);
+  // ***** JF edit starts
+//  GPIO_setMode(obj->gpioHandle,GPIO_Number_14,GPIO_14_Mode_SPICLKB);
+    GPIO_setMode(obj->gpioHandle,GPIO_Number_14,GPIO_14_Mode_GeneralPurpose);
+  // ***** JF edit ends
 
   // UARTB RX
   GPIO_setMode(obj->gpioHandle,GPIO_Number_15,GPIO_15_Mode_SCIRXDB);
@@ -1182,8 +1195,13 @@ void HAL_setupGpios(HAL_Handle handle)
   GPIO_setMode(obj->gpioHandle,GPIO_Number_18,GPIO_18_Mode_SPICLKA);
 
   // SPIA CS
-  GPIO_setMode(obj->gpioHandle,GPIO_Number_19,GPIO_19_Mode_SPISTEA_NOT);
-  
+  // ***** JF edit starts
+  //  GPIO_setMode(obj->gpioHandle,GPIO_Number_19,GPIO_19_Mode_SPISTEA_NOT);
+  GPIO_setMode(obj->gpioHandle, GPIO_Number_19, GPIO_19_Mode_GeneralPurpose);
+  GPIO_setHigh(obj->gpioHandle, GPIO_Number_19);
+  GPIO_setDirection(obj->gpioHandle, GPIO_Number_19, GPIO_Direction_Output);
+  // ***** JF edit ends
+
 #ifdef QEP
   // EQEP1A
   GPIO_setMode(obj->gpioHandle,GPIO_Number_20,GPIO_20_Mode_EQEP1A);
@@ -1215,25 +1233,53 @@ void HAL_setupGpios(HAL_Handle handle)
   GPIO_setMode(obj->gpioHandle,GPIO_Number_23,GPIO_23_Mode_GeneralPurpose);
 #endif
 
+  // ***** JF edit starts
+  GPIO_setMode(obj->gpioHandle,GPIO_Number_22,GPIO_22_Mode_GeneralPurpose); // redundant, but okay
+  GPIO_setLow(obj->gpioHandle,GPIO_Number_22);
+  GPIO_setDirection(obj->gpioHandle,GPIO_Number_22,GPIO_Direction_Input);
+  GPIO_setExtInt(obj->gpioHandle, GPIO_Number_22, CPU_ExtIntNumber_3);
+
+  // ***** JF edit ends
+
   // SPIB SIMO
-  GPIO_setMode(obj->gpioHandle,GPIO_Number_24,GPIO_24_Mode_SPISIMOB);
+  // ***** JF edit starts
+//  GPIO_setMode(obj->gpioHandle,GPIO_Number_24,GPIO_24_Mode_SPISIMOB);
+    GPIO_setMode(obj->gpioHandle,GPIO_Number_24,GPIO_24_Mode_GeneralPurpose);
+  // ***** JF edit ends
 
   // SPIB SOMI
-  GPIO_setMode(obj->gpioHandle,GPIO_Number_25,GPIO_25_Mode_SPISOMIB);
+  // **** JF edit starts
+//  GPIO_setMode(obj->gpioHandle,GPIO_Number_25,GPIO_25_Mode_SPISOMIB);
+  GPIO_setMode(obj->gpioHandle,GPIO_Number_25,GPIO_25_Mode_GeneralPurpose);
+  // **** JF edit ends
 
   // GPIO -- Input for button
-  GPIO_setMode(obj->gpioHandle, GPIO_Number_26, GPIO_26_Mode_GeneralPurpose);
-  GPIO_setHigh(obj->gpioHandle, GPIO_Number_26);
-  GPIO_setDirection(obj->gpioHandle, GPIO_Number_26, GPIO_Direction_Input);
+  // **** JF edit starts
+//  GPIO_setMode(obj->gpioHandle, GPIO_Number_26, GPIO_26_Mode_GeneralPurpose);
+//  GPIO_setHigh(obj->gpioHandle, GPIO_Number_26);
+//  GPIO_setDirection(obj->gpioHandle, GPIO_Number_26, GPIO_Direction_Input);
+  GPIO_setMode(obj->gpioHandle,GPIO_Number_26,GPIO_26_Mode_SPICLKB);
+
 
   // SPIB CS
+
+  // ***** JF edit starts
   GPIO_setMode(obj->gpioHandle,GPIO_Number_27,GPIO_27_Mode_SPISTEB_NOT);
+  GPIO_setDirection(obj->gpioHandle, GPIO_Number_27, GPIO_Direction_Input); // BTW, this is necessary!
+
+  GPIO_setMode(obj->gpioHandle, GPIO_Number_29, GPIO_29_Mode_GeneralPurpose);
+  GPIO_setHigh(obj->gpioHandle, GPIO_Number_29);
+  GPIO_setDirection(obj->gpioHandle, GPIO_Number_29, GPIO_Direction_Output);
+  // ***** JF edit ends
 
   // OCTWn
   GPIO_setMode(obj->gpioHandle,GPIO_Number_28,GPIO_28_Mode_TZ2_NOT);
 
   // FAULTn
-  GPIO_setMode(obj->gpioHandle,GPIO_Number_29,GPIO_29_Mode_TZ3_NOT);
+
+  // ***** JF edit starts
+//  GPIO_setMode(obj->gpioHandle,GPIO_Number_29,GPIO_29_Mode_TZ3_NOT);
+  // ***** JF edit ends
 
   // CAN RX
   GPIO_setMode(obj->gpioHandle,GPIO_Number_30,GPIO_30_Mode_CANRXA);
@@ -1245,7 +1291,14 @@ void HAL_setupGpios(HAL_Handle handle)
   GPIO_setMode(obj->gpioHandle,GPIO_Number_32,GPIO_32_Mode_SDAA);
 
   // I2C Clock
-  GPIO_setMode(obj->gpioHandle,GPIO_Number_33,GPIO_33_Mode_SCLA);
+  // ***** JF edit
+
+//  GPIO_setMode(obj->gpioHandle,GPIO_Number_33,GPIO_33_Mode_SCLA);
+    GPIO_setMode(obj->gpioHandle,GPIO_Number_33,GPIO_33_Mode_GeneralPurpose);
+    GPIO_setLow(obj->gpioHandle,GPIO_Number_33);
+    GPIO_setDirection(obj->gpioHandle,GPIO_Number_33,GPIO_Direction_Output);
+
+  // ***** JF edit ends
 
   // LED D9
   GPIO_setMode(obj->gpioHandle,GPIO_Number_34,GPIO_34_Mode_GeneralPurpose);
@@ -1275,10 +1328,9 @@ void HAL_setupGpios(HAL_Handle handle)
   // DAC4
   GPIO_setMode(obj->gpioHandle,GPIO_Number_43,GPIO_43_Mode_EPWM8B);
 
-  // GPIO : Dbg Pin1
+  // GPIO
   GPIO_setMode(obj->gpioHandle,GPIO_Number_44,GPIO_44_Mode_GeneralPurpose);
-  GPIO_setLow(obj->gpioHandle, GPIO_Number_44);
-  GPIO_setDirection(obj->gpioHandle, GPIO_Number_44, GPIO_Direction_Output);
+
   // Set Qualification Period for GPIO50-55, 22*2*(1/90MHz) = 0.48us
   GPIO_setQualificationPeriod(obj->gpioHandle,GPIO_Number_50,22);
 
@@ -1301,10 +1353,10 @@ void HAL_setupGpios(HAL_Handle handle)
   GPIO_setMode(obj->gpioHandle,GPIO_Number_53,GPIO_53_Mode_GeneralPurpose);
   GPIO_setLow(obj->gpioHandle,GPIO_Number_53);
   GPIO_setDirection(obj->gpioHandle,GPIO_Number_53,GPIO_Direction_Output);
-  
+
   // Set Qualification Period for GPIO56-58, 22*2*(1/90MHz) = 0.48us
   GPIO_setQualificationPeriod(obj->gpioHandle,GPIO_Number_56,22);
-  
+
 #ifdef QEP
   // EQEP2A
   GPIO_setMode(obj->gpioHandle,GPIO_Number_54,GPIO_54_Mode_EQEP2A);
@@ -1328,10 +1380,9 @@ void HAL_setupGpios(HAL_Handle handle)
   GPIO_setMode(obj->gpioHandle,GPIO_Number_56,GPIO_56_Mode_GeneralPurpose);
 #endif
 
-  // No Connection : Debug Pin 2
+  // No Connection
   GPIO_setMode(obj->gpioHandle,GPIO_Number_57,GPIO_57_Mode_GeneralPurpose);
-  GPIO_setLow(obj->gpioHandle, GPIO_Number_57);
-  GPIO_setDirection(obj->gpioHandle, GPIO_Number_57, GPIO_Direction_Output);
+
   // UARTB TX
   GPIO_setMode(obj->gpioHandle,GPIO_Number_58,GPIO_58_Mode_SCITXDB);
 
@@ -1402,7 +1453,7 @@ void HAL_setupPeripheralClks(HAL_Handle handle)
 
   CLK_enableSpiaClock(obj->clkHandle);
   CLK_enableSpibClock(obj->clkHandle);
-  
+
   CLK_enableTbClockSync(obj->clkHandle);
 
   return;
@@ -1554,7 +1605,7 @@ void HAL_setupPwms(HAL_Handle_mtr handleMtr,HAL_Handle handle,const USER_Params 
   // first step to synchronize the pwms
   CLK_disableTbClockSync(obj->clkHandle);
 
-  // since the PWM is configured as an up/down counter, the period register is set to one-half 
+  // since the PWM is configured as an up/down counter, the period register is set to one-half
   // of the desired PWM period
   PWM_setPeriod(objMtr->pwmHandle[PWM_Number_1],halfPeriod_cycles);
   PWM_setPeriod(objMtr->pwmHandle[PWM_Number_2],halfPeriod_cycles);
@@ -1650,15 +1701,27 @@ void HAL_setupSpiB(HAL_Handle handle)
   HAL_Obj   *obj = (HAL_Obj *)handle;
 
   SPI_reset(obj->spiBHandle);
-  SPI_setMode(obj->spiBHandle,SPI_Mode_Master);
-  SPI_setClkPolarity(obj->spiBHandle,SPI_ClkPolarity_OutputRisingEdge_InputFallingEdge);
+  SPI_setMode(obj->spiBHandle,SPI_Mode_Slave); // this is default, but we shall set it anyway
+  SPI_setClkPolarity(obj->spiBHandle,SPI_ClkPolarity_OutputFallingEdge_InputRisingEdge);
+  SPI_setCharLength(obj->spiBHandle,SPI_CharLength_16_Bits);
+
+  SPI_enableRxFifo(obj->spiBHandle);
+  SPI_enableInt(obj->spiBHandle);
+
   SPI_enableTx(obj->spiBHandle);
   SPI_enableTxFifoEnh(obj->spiBHandle);
   SPI_enableTxFifo(obj->spiBHandle);
-  SPI_setTxDelay(obj->spiBHandle,0x0018);
-  SPI_setBaudRate(obj->spiBHandle,(SPI_BaudRate_e)(0x000d));
-  SPI_setCharLength(obj->spiBHandle,SPI_CharLength_16_Bits);
-  SPI_setSuspend(obj->spiBHandle,SPI_TxSuspend_free);
+  SPI_setTxDelay(obj->spiBHandle,0x00AF);
+
+  (obj->spiBHandle)->SPIFFTX |= (1<<15);
+
+
+  SPI_enableRxFifoInt(obj->spiBHandle); // SPIINT/SPIRXINT: common interrupt for FIFO receive, receive error, and FIFO overflow
+  (obj->spiBHandle)->SPIFFRX &= (~0x001F); // clear bits 4-0 (RXFFIL4-0)
+
+  (obj->spiBHandle)->SPIFFRX |= 2;          // set to generate RXFFINT when the FIFO has N words
+
+  //SPI_setSuspend(obj->spiBHandle,SPI_TxSuspend_free);
   SPI_enable(obj->spiBHandle);
 
   return;
@@ -1700,13 +1763,13 @@ void HAL_setupPwmDacs(HAL_Handle handle)
       PWMDAC_setShadowMode_CmpA(obj->pwmDacHandle[cnt],PWM_ShadowMode_Shadow);
       PWMDAC_setShadowMode_CmpB(obj->pwmDacHandle[cnt],PWM_ShadowMode_Shadow);
 
-      // Initialize the Action-Qualifier Output A Register (AQCTLA) 
+      // Initialize the Action-Qualifier Output A Register (AQCTLA)
       PWMDAC_setActionQual_CntUp_CmpA_PwmA(obj->pwmDacHandle[cnt],PWM_ActionQual_Clear);
       PWMDAC_setActionQual_CntDown_CmpA_PwmA(obj->pwmDacHandle[cnt],PWM_ActionQual_Set);
       PWMDAC_setActionQual_CntUp_CmpB_PwmB(obj->pwmDacHandle[cnt],PWM_ActionQual_Clear);
       PWMDAC_setActionQual_CntDown_CmpB_PwmB(obj->pwmDacHandle[cnt],PWM_ActionQual_Set);
 
-      // Initialize the Dead-Band Control Register (DBCTL) 
+      // Initialize the Dead-Band Control Register (DBCTL)
       PWMDAC_disableDeadBand(obj->pwmDacHandle[cnt]);
 
       // Initialize the PWM-Chopper Control Register (PCCTL)
@@ -1723,7 +1786,7 @@ void HAL_setupPwmDacs(HAL_Handle handle)
       PWMDAC_setTripZoneState_DCBEVT1(obj->pwmDacHandle[cnt],PWM_TripZoneState_HighImp);
     }
 
-  // since the PWM is configured as an up/down counter, the period register is set to one-half 
+  // since the PWM is configured as an up/down counter, the period register is set to one-half
   // of the desired PWM period
   PWMDAC_setPeriod(obj->pwmDacHandle[PWMDAC_Number_1],halfPeriod_cycles);
   PWMDAC_setPeriod(obj->pwmDacHandle[PWMDAC_Number_2],halfPeriod_cycles);
@@ -1758,7 +1821,7 @@ void HAL_writeDrvData(HAL_Handle_mtr handle, DRV_SPI_8305_Vars_t *Spi_8305_Vars)
   HAL_Obj_mtr  *obj = (HAL_Obj_mtr *)handle;
 
   DRV8305_writeData(obj->drv8305Handle,Spi_8305_Vars);
-  
+
   return;
 }  // end of HAL_writeDrvData() function
 
@@ -1768,7 +1831,7 @@ void HAL_readDrvData(HAL_Handle_mtr handle, DRV_SPI_8305_Vars_t *Spi_8305_Vars)
   HAL_Obj_mtr  *obj = (HAL_Obj_mtr *)handle;
 
   DRV8305_readData(obj->drv8305Handle,Spi_8305_Vars);
-  
+
   return;
 }  // end of HAL_readDrvData() function
 

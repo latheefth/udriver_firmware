@@ -99,6 +99,10 @@ void DRV8305_enable(DRV8305_Handle handle)
   {
       if (++enableWaitTimeOut > 999)
       {
+          // ***** JF edit starts
+          //GPIO_setHigh(obj->gpioHandle,GPIO_Number_34);
+          // ***** JF edit ends
+
           obj->enableTimeOut = true;
       }
   }
@@ -1106,6 +1110,14 @@ uint16_t DRV8305_readSpi(DRV8305_Handle handle,const DRV8305_Address_e regAddr)
   SPI_resetRxFifo(obj->spiHandle);
   SPI_enableRxFifo(obj->spiHandle);
 
+  // ***** JF edit starts
+  if(obj->gpioNumber == GPIO_Number_50){ // CH A
+      GPIO_setLow(obj->gpioHandle,GPIO_Number_19);
+  } else { // CH B
+      GPIO_setLow(obj->gpioHandle,GPIO_Number_29);
+  }
+  // ***** JF edit ends
+
   // write the command
   SPI_write(obj->spiHandle,ctrlWord);
 
@@ -1122,6 +1134,14 @@ uint16_t DRV8305_readSpi(DRV8305_Handle handle,const DRV8305_Address_e regAddr)
   // Read the word
   readWord = SPI_readEmu(obj->spiHandle);
 
+  // ***** JF edit starts
+  if(obj->gpioNumber == GPIO_Number_50){ // CH A
+      GPIO_setHigh(obj->gpioHandle,GPIO_Number_19);
+  } else { // CH B
+      GPIO_setHigh(obj->gpioHandle,GPIO_Number_29);
+  }
+  // ***** JF edit ends
+
   return(readWord & DRV8305_DATA_MASK);
 } // end of DRV8305_readSpi() function
 
@@ -1135,6 +1155,14 @@ void DRV8305_writeSpi(DRV8305_Handle handle,const DRV8305_Address_e regAddr,cons
   // build the control word
   ctrlWord = (uint16_t)DRV8305_buildCtrlWord(CtrlMode_Write,regAddr,data);
 
+// ***** JF edit starts
+  if(obj->gpioNumber == GPIO_Number_50){ // CH A
+      GPIO_setLow(obj->gpioHandle,GPIO_Number_19);
+  } else { // CH B
+      GPIO_setLow(obj->gpioHandle,GPIO_Number_29);
+  }
+  // ***** JF edit ends
+
   // reset the Rx fifo pointer to zero
   SPI_resetRxFifo(obj->spiHandle);
   SPI_enableRxFifo(obj->spiHandle);
@@ -1145,6 +1173,14 @@ void DRV8305_writeSpi(DRV8305_Handle handle,const DRV8305_Address_e regAddr,cons
   // wait for registers to update
   for(n=0;n<0xf;n++)
     asm(" NOP");
+
+  // ***** JF edit starts
+  if(obj->gpioNumber == GPIO_Number_50){ // CH A
+      GPIO_setHigh(obj->gpioHandle,GPIO_Number_19);
+  } else { // CH B
+      GPIO_setHigh(obj->gpioHandle,GPIO_Number_29);
+  }
+  // ***** JF edit ends
 
   return;
 }  // end of DRV8305_writeSpi() function

@@ -1102,7 +1102,6 @@ extern void HAL_setupSpiA(HAL_Handle handle);
 //! \param[in] handle  The hardware abstraction layer (HAL) handle
 extern void HAL_setupSpiB(HAL_Handle handle);
 
-
 //! \brief     Sets up the timers
 //! \param[in] handle          The hardware abstraction layer (HAL) handle
 //! \param[in] systemFreq_MHz  The system frequency, MHz
